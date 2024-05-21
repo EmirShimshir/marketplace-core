@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/EmirShimshir/marketplace-core/domain"
 	"github.com/EmirShimshir/marketplace-core/port"
+	log "github.com/sirupsen/logrus"
 )
 
 type WithdrawService struct {
@@ -17,34 +18,72 @@ func NewWithdrawService(repo port.IWithdrawRepository) *WithdrawService {
 }
 
 func (w *WithdrawService) Get(ctx context.Context, limit, offset int64) ([]domain.Withdraw, error) {
-	return w.repo.Get(ctx, limit, offset)
+	withdraws, err := w.repo.Get(ctx, limit, offset)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "WithdrawGet",
+		}).Error(err.Error())
+		return nil, err
+	}
+
+	return withdraws, nil
 }
 
 func (w *WithdrawService) GetByID(ctx context.Context, withdrawID domain.ID) (domain.Withdraw, error) {
-	return w.repo.GetByID(ctx, withdrawID)
+	withdraw, err := w.repo.GetByID(ctx, withdrawID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "WithdrawGetByID",
+		}).Error(err.Error())
+		return domain.Withdraw{}, err
+	}
+
+	return withdraw, nil
 }
 
 func (w *WithdrawService) GetByShopID(ctx context.Context, shopID domain.ID) ([]domain.Withdraw, error) {
-	return w.repo.GetByShopID(ctx, shopID)
+	withdraws, err := w.repo.GetByShopID(ctx, shopID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "WithdrawGetByShopID",
+		}).Error(err.Error())
+		return nil, err
+	}
+
+	return withdraws, nil
 }
 
 func (w *WithdrawService) Create(ctx context.Context, param port.CreateWithdrawParam) (domain.Withdraw, error) {
 	if param.Sum < 1 {
+		log.WithFields(log.Fields{
+			"from": "WithdrawCreate",
+		}).Error(domain.ErrPrice.Error())
 		return domain.Withdraw{}, domain.ErrPrice
 	}
 
-	return w.repo.Create(ctx, domain.Withdraw{
+	withdraw, err := w.repo.Create(ctx, domain.Withdraw{
 		ID:      domain.NewID(),
 		ShopID:  param.ShopID,
 		Comment: param.Comment,
 		Sum:     param.Sum,
 		Status:  domain.WithdrawStatusStart,
 	})
+	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "WithdrawCreate",
+		}).Error(err.Error())
+		return domain.Withdraw{}, err
+	}
+
+	return withdraw, nil
 }
 
 func (w *WithdrawService) Update(ctx context.Context, withdrawID domain.ID, param port.UpdateWithdrawParam) (domain.Withdraw, error) {
 	wr, err := w.GetByID(ctx, withdrawID)
 	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "WithdrawUpdate",
+		}).Error(err.Error())
 		return domain.Withdraw{}, err
 	}
 
@@ -59,12 +98,31 @@ func (w *WithdrawService) Update(ctx context.Context, withdrawID domain.ID, para
 	}
 
 	if wr.Sum < 1 {
+		log.WithFields(log.Fields{
+			"from": "WithdrawUpdate",
+		}).Error(domain.ErrPrice.Error())
 		return domain.Withdraw{}, domain.ErrPrice
 	}
 
-	return w.repo.Update(ctx, wr)
+	withdraw, err := w.repo.Update(ctx, wr)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "WithdrawUpdate",
+		}).Error(err.Error())
+		return domain.Withdraw{}, err
+	}
+
+	return withdraw, nil
 }
 
 func (w *WithdrawService) Delete(ctx context.Context, withdrawID domain.ID) error {
-	return w.repo.Delete(ctx, withdrawID)
+	err := w.repo.Delete(ctx, withdrawID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "WithdrawDelete",
+		}).Error(err.Error())
+		return err
+	}
+
+	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/EmirShimshir/marketplace-core/domain"
 	"github.com/EmirShimshir/marketplace-core/port"
+	log "github.com/sirupsen/logrus"
 )
 
 type ProductService struct {
@@ -19,11 +20,27 @@ func NewProductService(repo port.IProductRepository, storage port.IObjectStorage
 }
 
 func (p *ProductService) Get(ctx context.Context, limit, offset int64) ([]domain.Product, error) {
-	return p.repo.Get(ctx, limit, offset)
+	product, err := p.repo.Get(ctx, limit, offset)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "ProductServiceGet",
+		}).Error(err.Error())
+		return nil, err
+	}
+
+	return product, nil
 }
 
 func (p *ProductService) GetByID(ctx context.Context, productID domain.ID) (domain.Product, error) {
-	return p.repo.GetByID(ctx, productID)
+	product, err :=  p.repo.GetByID(ctx, productID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "ProductServiceGetByID",
+		}).Error(err.Error())
+		return domain.Product{}, err
+	}
+
+	return product, nil
 }
 
 func (p *ProductService) Create(ctx context.Context, param port.CreateProductParam) (domain.Product, error) {
@@ -34,10 +51,13 @@ func (p *ProductService) Create(ctx context.Context, param port.CreateProductPar
 		Reader: param.PhotoReader,
 	})
 	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "ProductServiceCreate",
+		}).Error(err.Error())
 		return domain.Product{}, err
 	}
 
-	return p.repo.Create(ctx, domain.Product{
+	product, err :=  p.repo.Create(ctx, domain.Product{
 		ID:          productID,
 		Name:        param.Name,
 		Description: param.Description,
@@ -45,11 +65,22 @@ func (p *ProductService) Create(ctx context.Context, param port.CreateProductPar
 		Category:    param.Category,
 		PhotoUrl:    url.String(),
 	})
+	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "ProductServiceCreate",
+		}).Error(err.Error())
+		return domain.Product{}, err
+	}
+
+	return product, nil
 }
 
 func (p *ProductService) Update(ctx context.Context, productID domain.ID, param port.UpdateProductParam) (domain.Product, error) {
 	product, err := p.repo.GetByID(ctx, productID)
 	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "ProductServiceUpdate",
+		}).Error(err.Error())
 		return domain.Product{}, err
 	}
 
@@ -72,14 +103,33 @@ func (p *ProductService) Update(ctx context.Context, productID domain.ID, param 
 			Reader: *param.PhotoReader,
 		})
 		if err != nil {
+			log.WithFields(log.Fields{
+				"from": "ProductServiceUpdate",
+			}).Error(err.Error())
 			return domain.Product{}, err
 		}
 		product.PhotoUrl = url.String()
 	}
 
-	return p.repo.Update(ctx, product)
+	product, err = p.repo.Update(ctx, product)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "ProductServiceUpdate",
+		}).Error(err.Error())
+		return domain.Product{}, err
+	}
+
+	return product, nil
 }
 
 func (p *ProductService) Delete(ctx context.Context, productID domain.ID) error {
-	return p.repo.Delete(ctx, productID)
+	err :=  p.repo.Delete(ctx, productID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "ProductServiceDelete",
+		}).Error(err.Error())
+		return err
+	}
+
+	return nil
 }

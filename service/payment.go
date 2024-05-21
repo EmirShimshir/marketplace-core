@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/EmirShimshir/marketplace-core/domain"
 	"github.com/EmirShimshir/marketplace-core/port"
+	log "github.com/sirupsen/logrus"
 	"net/url"
 )
 
@@ -22,33 +23,64 @@ func NewPaymentService(gateway port.IPaymentGateway, orderRepo port.IOrderReposi
 func (p *PaymentService) GetOrderPaymentUrl(ctx context.Context, orderID domain.ID) (url.URL, error) {
 	orderCustomer, err := p.orderRepo.GetOrderCustomerByID(ctx, orderID)
 	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "GetOrderPaymentUrl",
+		}).Error(err.Error())
 		return url.URL{}, err
 	}
 
 	if orderCustomer.Payed {
+		log.WithFields(log.Fields{
+			"from": "GetOrderPaymentUrl",
+		}).Error(domain.ErrOrderAlreadyPayed.Error())
 		return url.URL{}, domain.ErrOrderAlreadyPayed
 	}
 
-	return p.gateway.GetPaymentUrl(ctx, domain.PaymentPayload{
+	u, err :=  p.gateway.GetPaymentUrl(ctx, domain.PaymentPayload{
 		OrderID: orderCustomer.ID,
 		PaySum:  orderCustomer.TotalPrice,
 	})
+	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "GetOrderPaymentUrl",
+		}).Error(err.Error())
+		return url.URL{}, err
+	}
+
+	return u, nil
 }
 
 func (p *PaymentService) ProcessOrderPayment(ctx context.Context, key string) error {
 	payload, err := p.gateway.ProcessPayment(ctx, key)
 	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "ProcessOrderPayment",
+		}).Error(err.Error())
 		return err
 	}
 
 	orderCustomer, err := p.orderRepo.GetOrderCustomerByID(ctx, payload.OrderID)
 	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "ProcessOrderPayment",
+		}).Error(err.Error())
 		return err
 	}
 
 	if orderCustomer.TotalPrice < payload.PaySum {
+		log.WithFields(log.Fields{
+			"from": "ProcessOrderPayment",
+		}).Error(domain.ErrInvalidPaymentSum.Error())
 		return domain.ErrInvalidPaymentSum
 	}
 
-	return p.orderRepo.UpdatePaymentStatus(ctx, orderCustomer.ID)
+	err = p.orderRepo.UpdatePaymentStatus(ctx, orderCustomer.ID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"from": "ProcessOrderPayment",
+		}).Error(err.Error())
+		return err
+	}
+
+	return nil
 }
