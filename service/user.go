@@ -26,6 +26,9 @@ func (u *UserService) Get(ctx context.Context, limit, offset int64) ([]domain.Us
 		return nil, err
 	}
 
+	log.WithFields(log.Fields{
+		"count": len(users),
+	}).Info("UserServiceGet OK")
 	return users, nil
 }
 
@@ -38,6 +41,10 @@ func (u *UserService) GetByID(ctx context.Context, userID domain.ID) (domain.Use
 		return domain.User{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"userID": user.ID,
+		"email":  user.Email,
+	}).Info("UserServiceGetByID OK")
 	return user, nil
 }
 
@@ -50,6 +57,10 @@ func (u *UserService) GetByEmail(ctx context.Context, email string) (domain.User
 		return domain.User{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"userID": user.ID,
+		"email":  user.Email,
+	}).Info("UserServiceGetByEmail OK")
 	return user, nil
 }
 
@@ -84,6 +95,9 @@ func (u *UserService) Create(ctx context.Context, param port.CreateUserParam) (d
 		return domain.User{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"userID": user.ID,
+	}).Info("UserServiceCreate OK")
 	return user, nil
 }
 
@@ -143,5 +157,8 @@ func (u *UserService) Delete(ctx context.Context, userID domain.ID) error {
 		return err
 	}
 
+	log.WithFields(log.Fields{
+		"userID": userID,
+	}).Info("UserServiceDelete OK")
 	return nil
 }

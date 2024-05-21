@@ -32,7 +32,7 @@ func (p *ProductService) Get(ctx context.Context, limit, offset int64) ([]domain
 }
 
 func (p *ProductService) GetByID(ctx context.Context, productID domain.ID) (domain.Product, error) {
-	product, err :=  p.repo.GetByID(ctx, productID)
+	product, err := p.repo.GetByID(ctx, productID)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"from": "ProductServiceGetByID",
@@ -57,7 +57,7 @@ func (p *ProductService) Create(ctx context.Context, param port.CreateProductPar
 		return domain.Product{}, err
 	}
 
-	product, err :=  p.repo.Create(ctx, domain.Product{
+	product, err := p.repo.Create(ctx, domain.Product{
 		ID:          productID,
 		Name:        param.Name,
 		Description: param.Description,
@@ -123,7 +123,7 @@ func (p *ProductService) Update(ctx context.Context, productID domain.ID, param 
 }
 
 func (p *ProductService) Delete(ctx context.Context, productID domain.ID) error {
-	err :=  p.repo.Delete(ctx, productID)
+	err := p.repo.Delete(ctx, productID)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"from": "ProductServiceDelete",
