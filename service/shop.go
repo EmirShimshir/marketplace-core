@@ -28,6 +28,9 @@ func (s *ShopService) GetShops(ctx context.Context, limit, offset int64) ([]doma
 		return nil, err
 	}
 
+	log.WithFields(log.Fields{
+		"count": len(shop),
+	}).Info("GetShops OK")
 	return shop, nil
 }
 
@@ -40,6 +43,9 @@ func (s *ShopService) GetShopByID(ctx context.Context, shopID domain.ID) (domain
 		return domain.Shop{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"SellerID": shop.SellerID,
+	}).Info("GetShopByID OK")
 	return shop, nil
 }
 
@@ -52,6 +58,9 @@ func (s *ShopService) GetShopBySellerID(ctx context.Context, sellerID domain.ID)
 		return nil, err
 	}
 
+	log.WithFields(log.Fields{
+		"count": len(shop),
+	}).Info("GetShopBySellerID OK")
 	return shop, nil
 }
 
@@ -91,6 +100,10 @@ func (s *ShopService) CreateShop(ctx context.Context, sellerID domain.ID, param 
 		return domain.Shop{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"SellerID": shop.SellerID,
+		"Email":    shop.Email,
+	}).Info("CreateShop OK")
 	return shop, nil
 }
 
@@ -134,6 +147,10 @@ func (s *ShopService) UpdateShop(ctx context.Context, shopID domain.ID, param po
 		return domain.Shop{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"SellerID": shop.SellerID,
+		"Email":    shop.Email,
+	}).Info("UpdateShop OK")
 	return shop, nil
 }
 
@@ -143,9 +160,12 @@ func (s *ShopService) DeleteShop(ctx context.Context, shopID domain.ID) error {
 		log.WithFields(log.Fields{
 			"from": "DeleteShop",
 		}).Error(err.Error())
-		return  err
+		return err
 	}
 
+	log.WithFields(log.Fields{
+		"shopID": shopID,
+	}).Info("DeleteShop OK")
 	return nil
 }
 
@@ -158,6 +178,9 @@ func (s *ShopService) GetShopItemByID(ctx context.Context, shopItemID domain.ID)
 		return domain.ShopItem{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"shopItemID": shopItemID,
+	}).Info("GetShopItemByID OK")
 	return shopItem, nil
 }
 
@@ -170,6 +193,9 @@ func (s *ShopService) GetShopItems(ctx context.Context, limit, offset int64) ([]
 		return nil, err
 	}
 
+	log.WithFields(log.Fields{
+		"count": len(shopItems),
+	}).Info("GetShopItems OK")
 	return shopItems, nil
 }
 
@@ -182,6 +208,9 @@ func (s *ShopService) GetShopItemByProductID(ctx context.Context, productID doma
 		return domain.ShopItem{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"shopItemID": shopItem.ID,
+	}).Info("GetShopItemByProductID OK")
 	return shopItem, nil
 }
 
@@ -247,6 +276,10 @@ func (s *ShopService) CreateShopItem(ctx context.Context, param port.CreateShopI
 		}).Error(err.Error())
 		return domain.ShopItem{}, err
 	}
+
+	log.WithFields(log.Fields{
+		"shopItemID": shopItem.ID,
+	}).Info("CreateShopItem OK")
 	return shopItem, nil
 }
 
@@ -276,6 +309,11 @@ func (s *ShopService) UpdateShopItem(ctx context.Context, shopItemID domain.ID, 
 		}).Error(err.Error())
 		return domain.ShopItem{}, err
 	}
+
+	log.WithFields(log.Fields{
+		"shopItemID": shopItem.ID,
+		"Quantity":   shopItem.Quantity,
+	}).Info("UpdateShopItem OK")
 	return shopItem, nil
 }
 
@@ -287,5 +325,9 @@ func (s *ShopService) DeleteShopItem(ctx context.Context, shopItemID domain.ID) 
 		}).Error(err.Error())
 		return err
 	}
+
+	log.WithFields(log.Fields{
+		"shopItemID": shopItemID,
+	}).Info("DeleteShopItem OK")
 	return nil
 }

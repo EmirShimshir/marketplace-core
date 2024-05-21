@@ -36,7 +36,7 @@ func (p *PaymentService) GetOrderPaymentUrl(ctx context.Context, orderID domain.
 		return url.URL{}, domain.ErrOrderAlreadyPayed
 	}
 
-	u, err :=  p.gateway.GetPaymentUrl(ctx, domain.PaymentPayload{
+	u, err := p.gateway.GetPaymentUrl(ctx, domain.PaymentPayload{
 		OrderID: orderCustomer.ID,
 		PaySum:  orderCustomer.TotalPrice,
 	})
@@ -47,6 +47,10 @@ func (p *PaymentService) GetOrderPaymentUrl(ctx context.Context, orderID domain.
 		return url.URL{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"url":     u.String(),
+		"orderID": orderID,
+	}).Info("GetOrderPaymentUrl OK")
 	return u, nil
 }
 
@@ -82,5 +86,8 @@ func (p *PaymentService) ProcessOrderPayment(ctx context.Context, key string) er
 		return err
 	}
 
+	log.WithFields(log.Fields{
+		"orderID": orderCustomer.ID,
+	}).Info("ProcessOrderPayment OK")
 	return nil
 }

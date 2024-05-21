@@ -34,7 +34,7 @@ func (a *AuthService) SignIn(ctx context.Context, param port.SignInParam) (domai
 		}).Error(domain.ErrPassword.Error())
 		return domain.AuthDetails{}, domain.ErrPassword
 	}
-	ad, err :=  a.authProvider.CreateJWTSession(domain.AuthPayload{UserID: user.ID}, param.Fingerprint)
+	ad, err := a.authProvider.CreateJWTSession(domain.AuthPayload{UserID: user.ID}, param.Fingerprint)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"from": "SignIn",
@@ -42,11 +42,15 @@ func (a *AuthService) SignIn(ctx context.Context, param port.SignInParam) (domai
 		return domain.AuthDetails{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"userID": user.ID,
+		"Email":  user.Email,
+	}).Info("SignIn OK")
 	return ad, nil
 }
 
 func (a *AuthService) SignUp(ctx context.Context, param port.SignUpParam) error {
-	_, err := a.userService.Create(ctx, port.CreateUserParam{
+	user, err := a.userService.Create(ctx, port.CreateUserParam{
 		Name:     param.Name,
 		Surname:  param.Surname,
 		Phone:    param.Phone,
@@ -60,17 +64,27 @@ func (a *AuthService) SignUp(ctx context.Context, param port.SignUpParam) error 
 		}).Error(err.Error())
 		return err
 	}
+
+	log.WithFields(log.Fields{
+		"userID": user.ID,
+		"Email":  user.Email,
+	}).Info("SignUp OK")
 	return nil
 }
 
 func (a *AuthService) LogOut(ctx context.Context, refreshToken domain.Token) error {
-	err :=  a.authProvider.DeleteJWTSession(refreshToken)
+	err := a.authProvider.DeleteJWTSession(refreshToken)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"from": "LogOut",
 		}).Error(err.Error())
 		return err
 	}
+
+	log.WithFields(log.Fields{
+		"from":         "LogOut",
+		"refreshToken": refreshToken.String(),
+	}).Info("LogOut OK")
 	return nil
 }
 
@@ -83,6 +97,11 @@ func (a *AuthService) Refresh(ctx context.Context, refreshToken domain.Token,
 		}).Error(err.Error())
 		return domain.AuthDetails{}, err
 	}
+
+	log.WithFields(log.Fields{
+		"from":         "LogOut",
+		"refreshToken": refreshToken.String(),
+	}).Info("Refresh OK")
 	return ad, nil
 }
 
@@ -94,16 +113,26 @@ func (a *AuthService) Verify(ctx context.Context, accessToken domain.Token) erro
 		}).Error(err.Error())
 		return err
 	}
+
+	log.WithFields(log.Fields{
+		"from":         "LogOut",
+		"refreshToken": accessToken.String(),
+	}).Info("Verify OK")
 	return nil
 }
 
 func (a *AuthService) Payload(ctx context.Context, accessToken domain.Token) (domain.AuthPayload, error) {
-	ap, err :=  a.authProvider.VerifyJWTToken(accessToken)
+	ap, err := a.authProvider.VerifyJWTToken(accessToken)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"from": "Payload",
 		}).Error(err.Error())
 		return domain.AuthPayload{}, err
 	}
+
+	log.WithFields(log.Fields{
+		"from":         "LogOut",
+		"refreshToken": accessToken.String(),
+	}).Info("Payload OK")
 	return ap, nil
 }

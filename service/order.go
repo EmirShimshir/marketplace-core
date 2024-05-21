@@ -35,6 +35,10 @@ func (o *OrderService) GetOrderCustomerByCustomerID(ctx context.Context, custome
 		}).Error(err.Error())
 		return nil, err
 	}
+
+	log.WithFields(log.Fields{
+		"count": len(oc),
+	}).Info("GetOrderCustomerByCustomerID OK")
 	return oc, nil
 
 }
@@ -47,6 +51,10 @@ func (o *OrderService) GetOrderCustomerByID(ctx context.Context, ID domain.ID) (
 		}).Error(err.Error())
 		return domain.OrderCustomer{}, err
 	}
+
+	log.WithFields(log.Fields{
+		"userID": oc.CustomerID,
+	}).Info("GetOrderCustomerByCustomerID OK")
 	return oc, nil
 }
 
@@ -68,6 +76,10 @@ func (o *OrderService) getCartItemsByShopID(ctx context.Context, cart domain.Car
 			return nil, err
 		}
 	}
+
+	log.WithFields(log.Fields{
+		"count": len(cartItemsByShopID),
+	}).Info("getCartItemsByShopID OK")
 	return cartItemsByShopID, nil
 }
 
@@ -149,6 +161,10 @@ func (o *OrderService) CreateOrderCustomer(ctx context.Context, param port.Creat
 		}).Error(err.Error())
 		return domain.OrderCustomer{}, err
 	}
+
+	log.WithFields(log.Fields{
+		"orderCustomerID": oc.ID,
+	}).Info("CreateOrderCustomer OK")
 	return oc, nil
 }
 
@@ -161,11 +177,14 @@ func (o *OrderService) GetOrderShopByID(ctx context.Context, orderShopID domain.
 		return domain.OrderShop{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"GetOrderShopByID": os.ID,
+	}).Info("CreateOrderCustomer OK")
 	return os, nil
 }
 
 func (o *OrderService) GetOrderShopByShopID(ctx context.Context, shopID domain.ID) ([]domain.OrderShop, error) {
-	os, err :=  o.orderRepo.GetOrderShopByShopID(ctx, shopID)
+	os, err := o.orderRepo.GetOrderShopByShopID(ctx, shopID)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"from": "GetOrderShopByShopID",
@@ -173,6 +192,9 @@ func (o *OrderService) GetOrderShopByShopID(ctx context.Context, shopID domain.I
 		return nil, err
 	}
 
+	log.WithFields(log.Fields{
+		"count": len(os),
+	}).Info("GetOrderShopByShopID OK")
 	return os, nil
 }
 
@@ -197,5 +219,8 @@ func (o *OrderService) UpdateOrderShop(ctx context.Context, orderShopID domain.I
 		return domain.OrderShop{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"orderShopID": os.ID,
+	}).Info("UpdateOrderShop OK")
 	return os, nil
 }

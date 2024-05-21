@@ -62,13 +62,17 @@ func (c *CartService) GetCartByID(ctx context.Context, cartID domain.ID) (domain
 	}
 
 	cart.Price = totalPrice
-	cu, err :=  c.cartRepo.UpdateCart(ctx, cart)
+	cu, err := c.cartRepo.UpdateCart(ctx, cart)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"from": "GetCartByID",
 		}).Error(err.Error())
 		return domain.Cart{}, err
 	}
+
+	log.WithFields(log.Fields{
+		"CartID": cart.ID,
+	}).Info("GetCartByID OK")
 	return cu, nil
 }
 
@@ -99,6 +103,10 @@ func (c *CartService) ClearCart(ctx context.Context, cartID domain.ID) error {
 		}).Error(err.Error())
 		return err
 	}
+
+	log.WithFields(log.Fields{
+		"CartID": cart.ID,
+	}).Info("ClearCart OK")
 	return nil
 }
 
@@ -111,6 +119,9 @@ func (c *CartService) GetCartItemByID(ctx context.Context, cartItemID domain.ID)
 		return domain.CartItem{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"CartID": cartItem.CartID,
+	}).Info("GetCartItemByID OK")
 	return cartItem, nil
 }
 
@@ -142,6 +153,12 @@ func (c *CartService) CreateCartItem(ctx context.Context, param port.CreateCartI
 		}).Error(err.Error())
 		return domain.CartItem{}, err
 	}
+
+	log.WithFields(log.Fields{
+		"CartID":    ci.CartID,
+		"ProductID": ci.ProductID,
+		"Quantity":  ci.Quantity,
+	}).Info("CreateCartItem OK")
 	return ci, nil
 }
 
@@ -185,6 +202,11 @@ func (c *CartService) UpdateCartItem(ctx context.Context, cartItemID domain.ID, 
 		return domain.CartItem{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"CartID":    ci.CartID,
+		"ProductID": ci.ProductID,
+		"Quantity":  ci.Quantity,
+	}).Info("UpdateCartItem OK")
 	return ci, nil
 }
 
@@ -196,5 +218,9 @@ func (c *CartService) DeleteCartItem(ctx context.Context, cartItemID domain.ID) 
 		}).Error(err.Error())
 		return err
 	}
+
+	log.WithFields(log.Fields{
+		"cartItemID": cartItemID,
+	}).Info("DeleteCartItem OK")
 	return nil
 }
