@@ -19,7 +19,7 @@ func NewUserService(userRepo port.IUserRepository) *UserService {
 
 func (u *UserService) Get(ctx context.Context, limit, offset int64) ([]domain.User, error) {
 	users, err := u.userRepo.Get(ctx, limit, offset)
-	if err != nil{
+	if err != nil {
 		log.WithFields(log.Fields{
 			"from": "UserServiceGet",
 		}).Error(err.Error())
@@ -31,7 +31,7 @@ func (u *UserService) Get(ctx context.Context, limit, offset int64) ([]domain.Us
 
 func (u *UserService) GetByID(ctx context.Context, userID domain.ID) (domain.User, error) {
 	user, err := u.userRepo.GetByID(ctx, userID)
-	if err != nil{
+	if err != nil {
 		log.WithFields(log.Fields{
 			"from": "UserServiceGetByID",
 		}).Error(err.Error())
@@ -43,7 +43,7 @@ func (u *UserService) GetByID(ctx context.Context, userID domain.ID) (domain.Use
 
 func (u *UserService) GetByEmail(ctx context.Context, email string) (domain.User, error) {
 	user, err := u.userRepo.GetByEmail(ctx, email)
-	if err != nil{
+	if err != nil {
 		log.WithFields(log.Fields{
 			"from": "UserServiceGetByEmail",
 		}).Error(err.Error())
@@ -77,7 +77,7 @@ func (u *UserService) Create(ctx context.Context, param port.CreateUserParam) (d
 		Password: param.Password,
 		Role:     param.Role,
 	})
-	if err != nil{
+	if err != nil {
 		log.WithFields(log.Fields{
 			"from": "UserServiceCreate",
 		}).Error(err.Error())
@@ -121,19 +121,22 @@ func (u *UserService) Update(ctx context.Context, userID domain.ID,
 	}
 
 	user, err = u.userRepo.Update(ctx, user)
-	if err != nil{
+	if err != nil {
 		log.WithFields(log.Fields{
 			"from": "UserServiceUpdate",
 		}).Error(err.Error())
 		return domain.User{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"userID": user.ID,
+	}).Info("UserServiceUpdate OK")
 	return user, nil
 }
 
 func (u *UserService) Delete(ctx context.Context, userID domain.ID) error {
 	err := u.userRepo.Delete(ctx, userID)
-	if err != nil{
+	if err != nil {
 		log.WithFields(log.Fields{
 			"from": "UserServiceDelete",
 		}).Error(err.Error())

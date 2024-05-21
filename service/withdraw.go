@@ -26,6 +26,9 @@ func (w *WithdrawService) Get(ctx context.Context, limit, offset int64) ([]domai
 		return nil, err
 	}
 
+	log.WithFields(log.Fields{
+		"count": len(withdraws),
+	}).Info("WithdrawServiceGet OK")
 	return withdraws, nil
 }
 
@@ -38,6 +41,9 @@ func (w *WithdrawService) GetByID(ctx context.Context, withdrawID domain.ID) (do
 		return domain.Withdraw{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"id": withdraw.ID,
+	}).Info("WithdrawServiceGetByID OK")
 	return withdraw, nil
 }
 
@@ -50,6 +56,10 @@ func (w *WithdrawService) GetByShopID(ctx context.Context, shopID domain.ID) ([]
 		return nil, err
 	}
 
+	log.WithFields(log.Fields{
+		"shopID": shopID,
+		"count":  len(withdraws),
+	}).Info("WithdrawServiceGetByShopID OK")
 	return withdraws, nil
 }
 
@@ -75,6 +85,10 @@ func (w *WithdrawService) Create(ctx context.Context, param port.CreateWithdrawP
 		return domain.Withdraw{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"shopID": withdraw.ShopID,
+		"sum":    withdraw.Sum,
+	}).Info("WithdrawServiceCreate OK")
 	return withdraw, nil
 }
 
@@ -107,11 +121,16 @@ func (w *WithdrawService) Update(ctx context.Context, withdrawID domain.ID, para
 	withdraw, err := w.repo.Update(ctx, wr)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"from": "WithdrawUpdate",
+			"from": "Update",
 		}).Error(err.Error())
 		return domain.Withdraw{}, err
 	}
 
+	log.WithFields(log.Fields{
+		"shopID": withdraw.ShopID,
+		"sum":    withdraw.Sum,
+		"status": withdraw.Status,
+	}).Info("WithdrawServiceUpdate OK")
 	return withdraw, nil
 }
 
@@ -124,5 +143,8 @@ func (w *WithdrawService) Delete(ctx context.Context, withdrawID domain.ID) erro
 		return err
 	}
 
+	log.WithFields(log.Fields{
+		"id": withdrawID,
+	}).Info("WithdrawServiceDelete OK")
 	return nil
 }
